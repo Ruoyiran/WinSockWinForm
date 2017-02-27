@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Windows.Forms;
 
 namespace Server
 {
@@ -12,6 +11,7 @@ namespace Server
     {
         void OnClientJoined(IntPtr handle, string ipAddress);
         void OnClientRemoved(IntPtr handle);
+        void OnReceiveClientMessage(IntPtr handle, string message);
         void OnServerDisconnected();
     }
 
@@ -29,6 +29,7 @@ namespace Server
         private string sendToClientMessage;
 
         private static object guard = new object();
+        private static object recvGuard = new object();
         private static ServerManager instance;
         public static ServerManager Instance
         {
@@ -187,8 +188,13 @@ namespace Server
                 try
                 {
                     ClearBuffer(recvBuffer);
-                    int recvLength = clientSocket.ReceiveFrom(recvBuffer, ref remotePoint);
-                    string recvData = Encoding.Default.GetString(recvBuffer, 0, recvLength);
+                    lock (recvGuard)
+                    {
+                        int recvLength = clientSocket.ReceiveFrom(recvBuffer, ref remotePoint);
+                        string recvData = Encoding.Default.GetString(recvBuffer, 0, recvLength);
+                        if (serverListener != null)
+                            serverListener.OnReceiveClientMessage(clientSocket.Handle, recvData);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -281,45 +287,5 @@ namespace Server
                 sendToClientMessage = message;
             }
         }
-
-        //static void Main(string[] args)
-        //{
-        //    Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        //    IPEndPoint localEP = new IPEndPoint(IPAddress.Any, 6000);
-        //    socket.Bind(localEP);
-        //    socket.Listen(20);
-        //    Console.WriteLine("\t\t***************服务器端***************\n");
-        //    Console.WriteLine("\t\t\t服务器端IP: 192.168.1.103");
-        //    Console.WriteLine("\t\t\t服务器端端口号: 6000");
-        //    EndPoint remotePoint = localEP;
-        //    Console.WriteLine("\t\t**************************************\n");
-        //    Console.WriteLine("服务器已启动!\n");
-        //    while (true)
-        //    {
-        //        byte[] buf = new byte[MAX_BUF_SIZE];
-        //        try
-        //        {
-
-        //            Socket socketClient = socket.Accept();
-        //            socketClient.ReceiveFrom(buf, ref remotePoint);
-        //            //string data = Encoding.Default.GetString(GetEffData(buf));
-        //            //Console.WriteLine("客户端： " + data);
-        //            byte[] d = Encoding.ASCII.GetBytes("(0.1,0.1,0.1,0.2,0.2,0.2)\n");
-        //            socketClient.SendTo(d, remotePoint);
-        //            buf = null;
-        //            socketClient.Close();
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            Console.WriteLine("error");
-        //            Console.WriteLine(ex.Message.ToString());
-        //            socket.Close();
-        //            socket.Dispose();
-        //            break;
-        //        }
-
-        //    }
-
-        //}
     }
 }

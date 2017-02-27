@@ -30,49 +30,112 @@
         {
             this.serverIpAddress = new IPInputControl.Ctrl.IPInput();
             this.connectToServerCheckBox = new System.Windows.Forms.CheckBox();
-            this.btnSendToServer = new System.Windows.Forms.Button();
+            this.btnBulbStateSwitch = new System.Windows.Forms.Button();
+            this.lightBulbPictureBox = new System.Windows.Forms.PictureBox();
+            this.temperatureTextBox = new System.Windows.Forms.TextBox();
+            this.humidityText = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)(this.lightBulbPictureBox)).BeginInit();
             this.SuspendLayout();
             // 
             // serverIpAddress
             // 
             this.serverIpAddress.BackColor = System.Drawing.Color.White;
             this.serverIpAddress.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.serverIpAddress.Location = new System.Drawing.Point(21, 53);
+            this.serverIpAddress.Location = new System.Drawing.Point(24, 57);
             this.serverIpAddress.Name = "serverIpAddress";
-            this.serverIpAddress.Size = new System.Drawing.Size(154, 24);
+            this.serverIpAddress.Size = new System.Drawing.Size(179, 26);
             this.serverIpAddress.TabIndex = 0;
             // 
             // connectToServerCheckBox
             // 
             this.connectToServerCheckBox.AutoSize = true;
-            this.connectToServerCheckBox.Location = new System.Drawing.Point(21, 20);
+            this.connectToServerCheckBox.Location = new System.Drawing.Point(24, 22);
             this.connectToServerCheckBox.Name = "connectToServerCheckBox";
-            this.connectToServerCheckBox.Size = new System.Drawing.Size(84, 16);
+            this.connectToServerCheckBox.Size = new System.Drawing.Size(96, 18);
             this.connectToServerCheckBox.TabIndex = 1;
             this.connectToServerCheckBox.Text = "连接服务器";
             this.connectToServerCheckBox.UseVisualStyleBackColor = true;
             this.connectToServerCheckBox.CheckedChanged += new System.EventHandler(this.OnConnectServerChanged);
             // 
-            // btnSendToServer
+            // btnBulbStateSwitch
             // 
-            this.btnSendToServer.Location = new System.Drawing.Point(104, 113);
-            this.btnSendToServer.Name = "btnSendToServer";
-            this.btnSendToServer.Size = new System.Drawing.Size(75, 23);
-            this.btnSendToServer.TabIndex = 2;
-            this.btnSendToServer.Text = "Send";
-            this.btnSendToServer.UseVisualStyleBackColor = true;
-            this.btnSendToServer.Click += new System.EventHandler(this.OnBtnSendToServer);
+            this.btnBulbStateSwitch.Location = new System.Drawing.Point(121, 122);
+            this.btnBulbStateSwitch.Name = "btnBulbStateSwitch";
+            this.btnBulbStateSwitch.Size = new System.Drawing.Size(87, 25);
+            this.btnBulbStateSwitch.TabIndex = 2;
+            this.btnBulbStateSwitch.Text = "关灯";
+            this.btnBulbStateSwitch.UseVisualStyleBackColor = true;
+            this.btnBulbStateSwitch.Click += new System.EventHandler(this.OnBtnBulbStateSwitch);
+            // 
+            // lightBulbPictureBox
+            // 
+            this.lightBulbPictureBox.Location = new System.Drawing.Point(24, 103);
+            this.lightBulbPictureBox.Name = "lightBulbPictureBox";
+            this.lightBulbPictureBox.Size = new System.Drawing.Size(82, 68);
+            this.lightBulbPictureBox.TabIndex = 3;
+            this.lightBulbPictureBox.TabStop = false;
+            // 
+            // temperatureTextBox
+            // 
+            this.temperatureTextBox.Location = new System.Drawing.Point(102, 207);
+            this.temperatureTextBox.MaxLength = 5;
+            this.temperatureTextBox.Name = "temperatureTextBox";
+            this.temperatureTextBox.Size = new System.Drawing.Size(116, 23);
+            this.temperatureTextBox.TabIndex = 4;
+            this.temperatureTextBox.Text = "20";
+            this.temperatureTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.temperatureTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnKeyPress);
+            // 
+            // humidityText
+            // 
+            this.humidityText.Location = new System.Drawing.Point(102, 276);
+            this.humidityText.MaxLength = 5;
+            this.humidityText.Name = "humidityText";
+            this.humidityText.Size = new System.Drawing.Size(116, 23);
+            this.humidityText.TabIndex = 4;
+            this.humidityText.Text = "30";
+            this.humidityText.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.humidityText.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnKeyPress);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(45, 210);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(42, 14);
+            this.label1.TabIndex = 5;
+            this.label1.Text = "温度:";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(45, 279);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(42, 14);
+            this.label2.TabIndex = 5;
+            this.label2.Text = "湿度:";
             // 
             // ClientForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(453, 345);
-            this.Controls.Add(this.btnSendToServer);
+            this.ClientSize = new System.Drawing.Size(269, 374);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.humidityText);
+            this.Controls.Add(this.temperatureTextBox);
+            this.Controls.Add(this.lightBulbPictureBox);
+            this.Controls.Add(this.btnBulbStateSwitch);
             this.Controls.Add(this.connectToServerCheckBox);
             this.Controls.Add(this.serverIpAddress);
+            this.Font = new System.Drawing.Font("宋体", 10F);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
             this.Name = "ClientForm";
             this.Text = "Client";
+            ((System.ComponentModel.ISupportInitialize)(this.lightBulbPictureBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -82,7 +145,12 @@
 
         private IPInputControl.Ctrl.IPInput serverIpAddress;
         private System.Windows.Forms.CheckBox connectToServerCheckBox;
-        private System.Windows.Forms.Button btnSendToServer;
+        private System.Windows.Forms.Button btnBulbStateSwitch;
+        private System.Windows.Forms.PictureBox lightBulbPictureBox;
+        private System.Windows.Forms.TextBox temperatureTextBox;
+        private System.Windows.Forms.TextBox humidityText;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
     }
 }
 

@@ -67,14 +67,11 @@
             // clientList
             // 
             this.clientList.FormattingEnabled = true;
-            this.clientList.Items.AddRange(new object[] {
-            "client1",
-            "client2",
-            "client3"});
             this.clientList.Location = new System.Drawing.Point(14, 22);
             this.clientList.Name = "clientList";
             this.clientList.Size = new System.Drawing.Size(234, 277);
             this.clientList.TabIndex = 1;
+            this.clientList.SelectedValueChanged += new System.EventHandler(this.OnSelectedValueChanged);
             // 
             // label2
             // 
@@ -156,6 +153,8 @@
             this.humidityValueText.Name = "humidityValueText";
             this.humidityValueText.Size = new System.Drawing.Size(75, 23);
             this.humidityValueText.TabIndex = 5;
+            this.humidityValueText.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.humidityValueText.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnKeyPress);
             // 
             // temperatureValueText
             // 
@@ -163,6 +162,8 @@
             this.temperatureValueText.Name = "temperatureValueText";
             this.temperatureValueText.Size = new System.Drawing.Size(75, 23);
             this.temperatureValueText.TabIndex = 5;
+            this.temperatureValueText.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.temperatureValueText.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnKeyPress);
             // 
             // btnClientHumiditySetting
             // 
@@ -172,6 +173,7 @@
             this.btnClientHumiditySetting.TabIndex = 4;
             this.btnClientHumiditySetting.Text = "设置";
             this.btnClientHumiditySetting.UseVisualStyleBackColor = true;
+            this.btnClientHumiditySetting.Click += new System.EventHandler(this.OnBtnClientHumiditySettingClicked);
             // 
             // btnClientTemperatureSetting
             // 
@@ -181,6 +183,7 @@
             this.btnClientTemperatureSetting.TabIndex = 4;
             this.btnClientTemperatureSetting.Text = "设置";
             this.btnClientTemperatureSetting.UseVisualStyleBackColor = true;
+            this.btnClientTemperatureSetting.Click += new System.EventHandler(this.OnBtnClientTemperatureSettingClicked);
             // 
             // btnClientLightSwitch
             // 
@@ -254,6 +257,7 @@
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.startServer);
             this.Font = new System.Drawing.Font("宋体", 10F);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.Name = "ServerForm";
             this.Text = "Server";
