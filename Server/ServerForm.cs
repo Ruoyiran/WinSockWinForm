@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace Server
@@ -6,11 +7,17 @@ namespace Server
     public partial class ServerForm : Form, ServerListener
     {
         private int port = 6000;
-
+        private List<IntPtr> clientHandles;
         public ServerForm()
         {
             InitializeComponent();
+            NecessaryInitialization();
+        }
+
+        private void NecessaryInitialization()
+        {
             ServerManager.Instance.SetServerListener(this);
+            clientHandles = new List<IntPtr>();
             clientList.Items.Clear();
         }
 
@@ -39,7 +46,31 @@ namespace Server
 
         public void OnClientJoined(IntPtr handle, string ipAddress)
         {
+            clientHandles.Add(handle);
             clientList.Items.Add(ipAddress);
+        }
+
+        public void OnClientRemoved(IntPtr handle)
+        {
+            int clientPosition = FindClientPosition(handle);
+            clientHandles.RemoveAt(clientPosition);
+            clientList.Items.RemoveAt(clientPosition);
+        }
+
+        private int FindClientPosition(IntPtr handle)
+        {
+            int numClients = clientHandles.Count;
+            for (int i = 0; i < numClients; ++i)
+            {
+                if (clientHandles[i] == handle)
+                    return i;
+            }
+            return -1;
+        }
+
+        public void OnServerDisconnected()
+        {
+            clientList.Items.Clear();
         }
     }
 }

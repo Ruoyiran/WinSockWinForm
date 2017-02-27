@@ -11,6 +11,8 @@ namespace Server
     public interface ServerListener
     {
         void OnClientJoined(IntPtr handle, string ipAddress);
+        void OnClientRemoved(IntPtr handle);
+        void OnServerDisconnected();
     }
 
     public class ServerManager
@@ -86,7 +88,9 @@ namespace Server
         {
             CloseSocket();
             RemoveAllClients();
-            runAcceptThread = false;
+
+            if (serverListener != null)
+                serverListener.OnServerDisconnected();
         }
 
         private void CloseSocket()
@@ -94,6 +98,8 @@ namespace Server
             serverSocket.Close();
             serverSocket.Dispose();
             serverSocket = null;
+
+            runAcceptThread = false;
         }
 
         private void LuanchAcceptThread()
@@ -141,30 +147,54 @@ namespace Server
             Socket clientSocket = obj as Socket;
             EndPoint remotePoint = ipEndPoint as EndPoint;
             byte[] recvBuffer = new byte[MAX_BUF_SIZE];
-            while (ClientIsAlive(clientSocket.Handle))
+            while (true)
             {
-                ClearBuffer(recvBuffer);
                 try
                 {
+                    ClearBuffer(recvBuffer);
                     clientSocket.ReceiveFrom(recvBuffer, ref remotePoint);
                     string recvData = Encoding.Default.GetString(recvBuffer);
-                    MessageBox.Show(recvData);
                 }
                 catch (Exception ex)
                 {
                 }
+                if (ClientIsNotAlive(clientSocket))
+                {
+                    lock(guard)
+                    {
+                        RemoveClient(clientSocket.Handle);
+                    }
+                    break;
+                }
             }
         }
 
-        private bool ClientIsAlive(IntPtr handle)
+        private bool ClientIsNotAlive(Socket client)
         {
+            try
+            {
+                bool isDead = client.Poll(10, SelectMode.SelectRead);
+                int clientIndex = FindClientIndex(client.Handle);
+                return isDead || (clientIndex < 0);
+            }
+            catch (Exception ex)
+            {
+                return true;
+            }
+        }
+
+        private int FindClientIndex(IntPtr handle)
+        {
+
             int numClients = connectedClients.Count;
             for (int i = 0; i < numClients; ++i)
             {
                 if (connectedClients[i].Handle == handle)
-                    return true;
+                {
+                    return i;
+                }
             }
-            return false;
+            return -1;
         }
 
         private void ClearBuffer(byte[] buffer)
@@ -177,8 +207,10 @@ namespace Server
             }
         }
 
-        private void RemoveClient(IntPtr handle)
+        private bool RemoveClient(IntPtr handle)
         {
+            bool isRemoved = false;
+
             int numClients = connectedClients.Count;
             for (int i = 0; i < numClients; ++i)
             {
@@ -186,9 +218,14 @@ namespace Server
                 {
                     connectedClients[i].Close();
                     connectedClients.RemoveAt(i);
+                    isRemoved = true;
                     break;
                 }
             }
+
+            if (isRemoved && serverListener != null)
+                serverListener.OnClientRemoved(handle);
+            return isRemoved;
         }
 
         private void RemoveAllClients()
