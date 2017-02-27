@@ -62,7 +62,7 @@
             this.startServer.TabIndex = 0;
             this.startServer.Text = "启动服务器";
             this.startServer.UseVisualStyleBackColor = true;
-            this.startServer.CheckedChanged += new System.EventHandler(this.StartServer_CheckedChanged);
+            this.startServer.CheckedChanged += new System.EventHandler(this.OnStartServerCheckedChanged);
             // 
             // clientList
             // 
@@ -190,6 +190,7 @@
             this.btnClientLightSwitch.TabIndex = 4;
             this.btnClientLightSwitch.Text = "开灯";
             this.btnClientLightSwitch.UseVisualStyleBackColor = true;
+            this.btnClientLightSwitch.Click += new System.EventHandler(this.OnClientBulbSwitchClicked);
             // 
             // label7
             // 

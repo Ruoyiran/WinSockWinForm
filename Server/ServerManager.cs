@@ -23,11 +23,11 @@ namespace Server
         private ServerListener serverListener;
         private Socket serverSocket;
         private IPEndPoint ipEndPoint;
-        private Thread acceptThread;
-        private Thread sendThread;
         private List<Socket> connectedClients;
         private bool runAcceptThread;
-        private bool runSendThread;
+        private bool isSend;
+        private string sendToClientMessage;
+
         private static object guard = new object();
         private static ServerManager instance;
         public static ServerManager Instance
@@ -67,11 +67,10 @@ namespace Server
         public bool StartTCPServer(int port)
         {
             if (runAcceptThread) return false;
-            
-            serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            ipEndPoint = new IPEndPoint(IPAddress.Any, port);
             try
             {
+                serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                ipEndPoint = new IPEndPoint(IPAddress.Any, port);
                 serverSocket.Bind(ipEndPoint);
                 serverSocket.Listen(BACK_LOG);
             }
@@ -81,16 +80,20 @@ namespace Server
             }
 
             LuanchAcceptThread();
+            LuanchSendThread();
             return true;
         }
 
         public void StopTCPServer()
         {
-            CloseSocket();
-            RemoveAllClients();
-
-            if (serverListener != null)
-                serverListener.OnServerDisconnected();
+            if (runAcceptThread)
+            {
+                CloseSocket();
+                RemoveAllClients();
+                runAcceptThread = false;
+                if (serverListener != null)
+                    serverListener.OnServerDisconnected();
+            }
         }
 
         private void CloseSocket()
@@ -98,15 +101,20 @@ namespace Server
             serverSocket.Close();
             serverSocket.Dispose();
             serverSocket = null;
-
-            runAcceptThread = false;
         }
 
         private void LuanchAcceptThread()
         {
             runAcceptThread = true;
-            acceptThread = new Thread(AcceptThread) { Name = "AcceptThread", IsBackground = true };
+            Thread acceptThread = new Thread(AcceptThread) { Name = "AcceptThread", IsBackground = true };
             acceptThread.Start();
+        }
+
+        private void LuanchSendThread()
+        {
+            runAcceptThread = true;
+            Thread sendThread = new Thread(SendThread) { Name = "SendThread", IsBackground = true };
+            sendThread.Start();
         }
 
         private void AcceptThread()
@@ -122,7 +130,34 @@ namespace Server
                 {
                 }
             }
-            acceptThread = null;
+        }
+
+        private void SendThread()
+        {
+            while(runAcceptThread)
+            {
+                if (isSend)
+                {
+                    SendToClients();
+                    isSend = false;
+                }
+            }
+        }
+
+        private void SendToClients()
+        {
+            EndPoint remotePoint = ipEndPoint as EndPoint;
+            int numClients = connectedClients.Count;
+            for (int i = 0; i < numClients; ++i)
+            {
+                try
+                {
+                    connectedClients[i].SendTo(Encoding.ASCII.GetBytes(sendToClientMessage), remotePoint);
+                }
+                catch (Exception ex)
+                {
+                }
+            }
         }
 
         private void ClientJoined(Socket clientSocket)
@@ -152,8 +187,8 @@ namespace Server
                 try
                 {
                     ClearBuffer(recvBuffer);
-                    clientSocket.ReceiveFrom(recvBuffer, ref remotePoint);
-                    string recvData = Encoding.Default.GetString(recvBuffer);
+                    int recvLength = clientSocket.ReceiveFrom(recvBuffer, ref remotePoint);
+                    string recvData = Encoding.Default.GetString(recvBuffer, 0, recvLength);
                 }
                 catch (Exception ex)
                 {
@@ -236,6 +271,15 @@ namespace Server
                 connectedClients[i].Close();
             }
             connectedClients.Clear();
+        }
+
+        public void SendToClient(string message)
+        {
+            if (message.Length > 0)
+            {
+                isSend = true;
+                sendToClientMessage = message;
+            }
         }
 
         //static void Main(string[] args)

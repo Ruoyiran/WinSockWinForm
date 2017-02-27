@@ -21,7 +21,7 @@ namespace Server
             clientList.Items.Clear();
         }
 
-        private void StartServer_CheckedChanged(object sender, EventArgs e)
+        private void OnStartServerCheckedChanged(object sender, EventArgs e)
         {
             if (startServer.Checked) {
                 bool success = ServerManager.Instance.StartTCPServer(port);
@@ -71,6 +71,11 @@ namespace Server
         public void OnServerDisconnected()
         {
             clientList.Items.Clear();
+        }
+
+        private void OnClientBulbSwitchClicked(object sender, EventArgs e)
+        {
+            ServerManager.Instance.SendToClient("Hello, client");
         }
     }
 }
