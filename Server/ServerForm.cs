@@ -111,7 +111,7 @@ namespace Server
 
             if (clientStatus != null)
             {
-                if(clientStatus.BulbState)
+                if(clientStatus.LightBulbIsOn)
                 {
                     btnClientLightSwitch.Text = "开灯";
                     ServerManager.Instance.SendToClient(CMD_SET_BULB_STATE_OFF);
@@ -151,11 +151,11 @@ namespace Server
             ClientStatus clientStatus = clientStatusTable[handle];
             if (message.Equals(CMD_BULB_STATE_ON))
             {
-                clientStatus.BulbState = true;
+                clientStatus.LightBulbIsOn = true;
             }
             else if (message.Equals(CMD_BULB_STATE_OFF))
             {
-                clientStatus.BulbState = false;
+                clientStatus.LightBulbIsOn = false;
             }
             else if (message.StartsWith(CMD_TEMPERATURE_VALUE))
             {
@@ -186,7 +186,7 @@ namespace Server
             ClientStatus clentStatus = GetSelectedClientStatus();
             if (clentStatus != null)
             {
-                bulbStateText.Text = clentStatus.BulbState ? "亮" : "暗";
+                bulbStateText.Text = clentStatus.LightBulbIsOn ? "亮" : "暗";
                 temperatureStateText.Text = clentStatus.Temperature.ToString();
                 humidityStateText.Text = clentStatus.Humidity.ToString();
 
@@ -202,7 +202,7 @@ namespace Server
             btnClientLightSwitch.Enabled = true;
             btnClientTemperatureSetting.Enabled = true;
             btnClientHumiditySetting.Enabled = true;
-            btnClientLightSwitch.Text = clentStatus.BulbState ? "关灯" : "开灯";
+            btnClientLightSwitch.Text = clentStatus.LightBulbIsOn ? "关灯" : "开灯";
         }
 
         private void OnKeyPress(object sender, KeyPressEventArgs e)

@@ -2,15 +2,15 @@
 {
     public class ClientStatus
     {
-        public bool BulbState
+        public bool LightBulbIsOn
         {
             get
             {
-                return bulbState;
+                return lightBulbIsOn;
             }
             set
             {
-                bulbState = value;
+                lightBulbIsOn = value;
             }
         }
 
@@ -38,7 +38,7 @@
             }
         }
 
-        private bool bulbState;
+        private bool lightBulbIsOn;
         private float temperature;
         private float humidity;
     }
