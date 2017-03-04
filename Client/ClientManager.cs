@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace Client
 {
@@ -63,7 +64,7 @@ namespace Client
             }
             catch (Exception ex)
             {
-                return false;
+                throw ex;
             }
 
             LaunchSendRecvThread();
@@ -121,6 +122,11 @@ namespace Client
                     string recvData = Encoding.Default.GetString(recvBuffer, 0, recvLength);
                     if (clientListener != null)
                         clientListener.OnReceiveServerMessage(recvData);
+                }
+                catch (SocketException ex)
+                {
+                    Disconnected();
+                    break;
                 }
                 catch (Exception ex)
                 {

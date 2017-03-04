@@ -33,7 +33,7 @@
             this.btnBulbStateSwitch = new System.Windows.Forms.Button();
             this.lightBulbPictureBox = new System.Windows.Forms.PictureBox();
             this.temperatureTextBox = new System.Windows.Forms.TextBox();
-            this.humidityText = new System.Windows.Forms.TextBox();
+            this.humidityTextBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.lightBulbPictureBox)).BeginInit();
@@ -71,38 +71,36 @@
             // 
             // lightBulbPictureBox
             // 
-            this.lightBulbPictureBox.Location = new System.Drawing.Point(24, 103);
+            this.lightBulbPictureBox.Location = new System.Drawing.Point(48, 100);
             this.lightBulbPictureBox.Name = "lightBulbPictureBox";
-            this.lightBulbPictureBox.Size = new System.Drawing.Size(82, 68);
+            this.lightBulbPictureBox.Size = new System.Drawing.Size(63, 61);
             this.lightBulbPictureBox.TabIndex = 3;
             this.lightBulbPictureBox.TabStop = false;
             // 
             // temperatureTextBox
             // 
-            this.temperatureTextBox.Location = new System.Drawing.Point(102, 207);
+            this.temperatureTextBox.Location = new System.Drawing.Point(102, 183);
             this.temperatureTextBox.MaxLength = 5;
             this.temperatureTextBox.Name = "temperatureTextBox";
             this.temperatureTextBox.Size = new System.Drawing.Size(116, 23);
             this.temperatureTextBox.TabIndex = 4;
             this.temperatureTextBox.Text = "20";
             this.temperatureTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.temperatureTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnKeyPress);
             // 
-            // humidityText
+            // humidityTextBox
             // 
-            this.humidityText.Location = new System.Drawing.Point(102, 276);
-            this.humidityText.MaxLength = 5;
-            this.humidityText.Name = "humidityText";
-            this.humidityText.Size = new System.Drawing.Size(116, 23);
-            this.humidityText.TabIndex = 4;
-            this.humidityText.Text = "30";
-            this.humidityText.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.humidityText.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnKeyPress);
+            this.humidityTextBox.Location = new System.Drawing.Point(102, 225);
+            this.humidityTextBox.MaxLength = 5;
+            this.humidityTextBox.Name = "humidityTextBox";
+            this.humidityTextBox.Size = new System.Drawing.Size(116, 23);
+            this.humidityTextBox.TabIndex = 4;
+            this.humidityTextBox.Text = "30";
+            this.humidityTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(45, 210);
+            this.label1.Location = new System.Drawing.Point(45, 186);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(42, 14);
             this.label1.TabIndex = 5;
@@ -111,7 +109,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(45, 279);
+            this.label2.Location = new System.Drawing.Point(45, 228);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(42, 14);
             this.label2.TabIndex = 5;
@@ -124,7 +122,7 @@
             this.ClientSize = new System.Drawing.Size(269, 374);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.humidityText);
+            this.Controls.Add(this.humidityTextBox);
             this.Controls.Add(this.temperatureTextBox);
             this.Controls.Add(this.lightBulbPictureBox);
             this.Controls.Add(this.btnBulbStateSwitch);
@@ -135,6 +133,7 @@
             this.MaximizeBox = false;
             this.Name = "ClientForm";
             this.Text = "Client";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnFormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.lightBulbPictureBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -148,7 +147,7 @@
         private System.Windows.Forms.Button btnBulbStateSwitch;
         private System.Windows.Forms.PictureBox lightBulbPictureBox;
         private System.Windows.Forms.TextBox temperatureTextBox;
-        private System.Windows.Forms.TextBox humidityText;
+        private System.Windows.Forms.TextBox humidityTextBox;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
     }

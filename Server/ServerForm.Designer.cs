@@ -154,7 +154,6 @@
             this.humidityValueText.Size = new System.Drawing.Size(75, 23);
             this.humidityValueText.TabIndex = 5;
             this.humidityValueText.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.humidityValueText.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnKeyPress);
             // 
             // temperatureValueText
             // 
@@ -163,7 +162,6 @@
             this.temperatureValueText.Size = new System.Drawing.Size(75, 23);
             this.temperatureValueText.TabIndex = 5;
             this.temperatureValueText.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.temperatureValueText.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnKeyPress);
             // 
             // btnClientHumiditySetting
             // 

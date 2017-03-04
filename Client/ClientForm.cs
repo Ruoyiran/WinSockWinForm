@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 using System.Threading;
@@ -7,56 +8,51 @@ namespace Client
 {
     public partial class ClientForm : Form, ClientListener
     {
+        private const int DEFAULT_PORT_NUMBER = 8008;
         private const string DEFAULT_SERVER_IP_ADDRESS = "127.0.0.1";
+        private const bool DEFAULT_LIGHT_IS_ON = true;
+        private const float DEFAULT_TEMPERATURE = 20;
+        private const float DEFAULT_HUMIDITY = 30;
 
-        private const string CMD_SET_BULB_STATE_ON = "SetBulbState:on";
-        private const string CMD_SET_BULB_STATE_OFF = "SetBulbState:off";
-        private const string CMD_SET_TEMPERATURE_VALUE = "SetTemperatureValue:";
-        private const string CMD_SET_HUMIDITY_VALUE = "SetHumidityValue:";
-        private const string CMD_BULB_STATE_ON = "BulbState:on";
-        private const string CMD_BULB_STATE_OFF = "BulbState:off";
-        private const string CMD_TEMPERATURE_VALUE = "Temperature:";
-        private const string CMD_HUMIDITY_VALUE = "Humidity:";
-
-        private int port = 8008;
-        private bool lightIsOn = true;
-        private Image lightOnImage;
-        private Image lightOffImage;
         private const string LIGHT_ON_IMAGE_NAME = "LightBright.bmp";
         private const string LIGHT_OFF_IMAGE_NAME = "LightDark.bmp";
+
+        private Image lightOnImage;
+        private Image lightOffImage;
+        private ClientStatus clientStatus;
+        private Dictionary<string, CommandBase> serverCommands;
+
         public ClientForm()
         {
             InitializeComponent();
-            SetDefaultServerIpAddress();
-
-            ClientManager.Instance.SetClientListener(this);
             LoadLightImages();
-            SetLightBulbImage();
+
+            SetDefaultServerIpAddress();
+            InitializeClientStatus();
+            SetUIValues();
+            BindServerCommands();
+
+            RegistClientListener();
         }
 
         private void LoadLightImages()
         {
-            try
-            {
-                lightOnImage = Image.FromFile(LIGHT_ON_IMAGE_NAME);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("未能加载图片："+ LIGHT_ON_IMAGE_NAME);
-            }
-            try
-            {
-                lightOffImage = Image.FromFile(LIGHT_OFF_IMAGE_NAME);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("未能加载图片：" + LIGHT_ON_IMAGE_NAME);
-            }
+            lightOnImage = LoadImage(LIGHT_ON_IMAGE_NAME);
+            lightOffImage = LoadImage(LIGHT_OFF_IMAGE_NAME);
         }
 
-        private void SetLightBulbImage()
+        private Image LoadImage(string imageName)
         {
-            lightBulbPictureBox.Image = lightIsOn ? lightOnImage : lightOffImage;
+            Image image = null;
+            try
+            {
+                image = Image.FromFile(imageName);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("未能加载图片：" + imageName);
+            }
+            return image;
         }
 
         private void SetDefaultServerIpAddress()
@@ -68,6 +64,119 @@ namespace Client
             serverIpAddress.txt_2.Text = vals[1];
             serverIpAddress.txt_3.Text = vals[2];
             serverIpAddress.txt_4.Text = vals[3];
+        }
+
+        private void InitializeClientStatus()
+        {
+            clientStatus = new ClientStatus();
+            clientStatus.LightIsOn = DEFAULT_LIGHT_IS_ON;
+            clientStatus.Temperature = DEFAULT_TEMPERATURE;
+            clientStatus.Humidity = DEFAULT_HUMIDITY;
+        }
+
+        private void SetUIValues()
+        {
+            SetLightBulbImageAndButtonText();
+            SetTemperatureAndHumidity();
+        }
+
+        private void BindServerCommands()
+        {
+            serverCommands = new Dictionary<string, CommandBase>();
+            serverCommands.Add(CommandConstant.COMMAND_LIGHT_STATE, new LightStateCommand("LightState", OnLightStateCommandHandler));
+            serverCommands.Add(CommandConstant.COMMAND_TEMPERATURE, new TemperatureCommand("Temerature", OnTemperatureCommandHandler));
+            serverCommands.Add(CommandConstant.COMMAND_HUMIDITY, new HumidityCommand("Humidity", OnHumidityCommandHandler));
+        }
+
+        private void OnLightStateCommandHandler(object[] args)
+        {
+            if (args == null || args.Length < 1)
+                return;
+
+            string value = (string)args[0];
+            clientStatus.LightIsOn = value.ToLower() == "on" ? true : false;
+        }
+
+        private void OnTemperatureCommandHandler(object[] args)
+        {
+            if (args == null || args.Length < 1)
+                return;
+
+            string value = (string)args[0];
+            clientStatus.Temperature = ParseStringToFloatValue(value);
+        }
+
+        private void OnHumidityCommandHandler(object[] args)
+        {
+            if (args == null || args.Length < 1)
+                return;
+
+            string value = (string)args[0];
+            clientStatus.Humidity = ParseStringToFloatValue(value);
+        }
+
+        private float ParseStringToFloatValue(string value)
+        {
+            float result = 0;
+            try
+            {
+                result = float.Parse(value);
+            }
+            catch (System.Exception ex)
+            {
+                result = 0;
+            }
+            return result;
+        }
+
+        private void SetLightBulbImageAndButtonText()
+        {
+            lightBulbPictureBox.Image = clientStatus.LightIsOn ? lightOnImage : lightOffImage;
+            btnBulbStateSwitch.Text = clientStatus.LightIsOn ?  "关灯": "开灯";
+        }
+
+        private void SetTemperatureAndHumidity()
+        {
+            temperatureTextBox.Text = clientStatus.Temperature.ToString();
+            humidityTextBox.Text = clientStatus.Humidity.ToString();
+        }
+
+        private void RegistClientListener()
+        {
+            ClientManager.Instance.SetClientListener(this);
+        }
+
+        private void OnConnectServerChanged(object sender, System.EventArgs e)
+        {
+            if (connectToServerCheckBox.Checked)
+            {
+                try
+                {
+                    ConnectToServer();
+                    TellServerClientStatus();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    connectToServerCheckBox.Checked = false;
+                }
+            }
+            else {
+                ClientManager.Instance.Disconnect();
+            }
+        }
+
+        private void ConnectToServer()
+        {
+            string ipAddress = GenerateIpAddress();
+            try
+            {
+                ClientManager.Instance.ConnectToServer(ipAddress, DEFAULT_PORT_NUMBER);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         private string GenerateIpAddress()
@@ -84,42 +193,32 @@ namespace Client
             return sb.ToString();
         }
 
-        private void OnConnectServerChanged(object sender, System.EventArgs e)
+        private void TellServerClientStatus()
         {
-            if (connectToServerCheckBox.Checked)
-            {
-                ConnectToServer();
-            }
-            else {
-                ClientManager.Instance.Disconnect();
-            }
+            string sendMessage = GenerateSendMessage();
+            ClientManager.Instance.SendToServer(sendMessage);
         }
 
-        private void ConnectToServer()
+        private string GenerateSendMessage()
         {
-            string ipAddress = GenerateIpAddress();
-            bool success = ClientManager.Instance.ConnectToServer(ipAddress, port);
-            if (!success)
-            {
-                MessageBox.Show("无法连接服务器");
-                connectToServerCheckBox.Checked = false;
-            }
+            string clientLightState = clientStatus.LightIsOn ? "on" : "off";
+            string clientTemperature = clientStatus.Temperature.ToString();
+            string clientHumidity = clientStatus.Humidity.ToString();
 
-            TellServerStatus();
+            StringBuilder sb = new StringBuilder();
+            sb.Append(CommandConstant.COMMAND_CLIENT_COMMAND_PREFIX);
+            AppendCommandToStringBuilder(ref sb, CommandConstant.COMMAND_LIGHT_STATE + CommandConstant.COMMAND_DELIMITER, clientLightState);
+            AppendCommandToStringBuilder(ref sb, CommandConstant.COMMAND_TEMPERATURE + CommandConstant.COMMAND_DELIMITER, clientTemperature);
+            AppendCommandToStringBuilder(ref sb, CommandConstant.COMMAND_HUMIDITY + CommandConstant.COMMAND_DELIMITER, clientHumidity);
+
+            return sb.ToString();
         }
 
-        private void TellServerStatus()
+        private void AppendCommandToStringBuilder(ref StringBuilder sb, string command, string value)
         {
-            string bulbState = lightIsOn ? CMD_BULB_STATE_ON : CMD_BULB_STATE_OFF;
-            ClientManager.Instance.SendToServer(bulbState);
-            Thread.Sleep(30);
-
-            string temperature = temperatureTextBox.Text == "" ? "0" : temperatureTextBox.Text;
-            ClientManager.Instance.SendToServer(CMD_TEMPERATURE_VALUE + temperature);
-            Thread.Sleep(30);
-
-            string humidity = humidityText.Text == "" ? "0" : humidityText.Text;
-            ClientManager.Instance.SendToServer(CMD_HUMIDITY_VALUE + humidity);
+            sb.Append(command);
+            sb.Append(value);
+            sb.Append("\n");
         }
 
         public void OnDisconnected()
@@ -130,51 +229,78 @@ namespace Client
 
         private void OnBtnBulbStateSwitch(object sender, EventArgs e)
         {
-            lightIsOn = !lightIsOn;
-            if (lightIsOn)
-            {
-                btnBulbStateSwitch.Text = "关灯";
-                ClientManager.Instance.SendToServer(CMD_BULB_STATE_ON);
-            }
-            else {
-                btnBulbStateSwitch.Text = "开灯";
-                ClientManager.Instance.SendToServer(CMD_BULB_STATE_OFF);
-            }
-            SetLightBulbImage();
+            clientStatus.LightIsOn = !clientStatus.LightIsOn;
+            SetLightBulbImageAndButtonText();
+            TellServerClientLightState();
+        }
+
+        private void TellServerClientLightState()
+        {
+            string lightState = clientStatus.LightIsOn ? "on" : "off";
+            string message = CommandConstant.COMMAND_CLIENT_COMMAND_PREFIX +
+                            CommandConstant.COMMAND_LIGHT_STATE + CommandConstant.COMMAND_DELIMITER +
+                            lightState;
+            ClientManager.Instance.SendToServer(message);
         }
 
         public void OnReceiveServerMessage(string message)
         {
-            if(message.Equals(CMD_SET_BULB_STATE_ON))
+            if (IsServerCommand(message))
             {
-                lightIsOn = true;
-                btnBulbStateSwitch.Text = "关灯";
-                SetLightBulbImage();
+                PostServerMessage(message);
+                SetUIValues();
+                TellServerClientStatus();
             }
-            else if (message.Equals(CMD_SET_BULB_STATE_OFF))
-            {
-                lightIsOn = false;
-                btnBulbStateSwitch.Text = "开灯";
-                SetLightBulbImage();
-            }
-            else if (message.StartsWith(CMD_SET_TEMPERATURE_VALUE))
-            {
-                string temp = message.Substring(CMD_SET_TEMPERATURE_VALUE.Length);
-                temperatureTextBox.Text = temp;
-            }
-            else if (message.StartsWith(CMD_SET_HUMIDITY_VALUE))
-            {
-                string humidity = message.Substring(CMD_SET_HUMIDITY_VALUE.Length);
-                humidityText.Text = humidity;
-            }
-            TellServerStatus();
         }
 
-        private void OnKeyPress(object sender, KeyPressEventArgs e)
+        private bool IsServerCommand(string message)
         {
-            if (e.KeyChar != 8 && !Char.IsDigit(e.KeyChar))
+            return message.StartsWith(CommandConstant.COMMAND_SERVER_COMMAND_PREFIX);
+        }
+
+        private void PostServerMessage(string message)
+        {
+            message = message.Substring(CommandConstant.COMMAND_CLIENT_COMMAND_PREFIX.Length);
+            string[] commands = message.Split('\n');
+            foreach (string command in commands)
             {
-                e.Handled = true;
+                PostServerCommand(command);
+            }
+        }
+
+        private void PostServerCommand(string command)
+        {
+            string clientCommand, value;
+            if (TryParseClientCommand(command, out clientCommand, out value))
+            {
+                CommandBase commandBase;
+                if (serverCommands.TryGetValue(clientCommand, out commandBase))
+                {
+                    commandBase.ExecuteCommand(value);
+                }
+            }
+        }
+
+        private bool TryParseClientCommand(string command, out string clientCommand, out string value)
+        {
+            clientCommand = "";
+            value = "";
+
+            command = command.Trim();
+            string[] vals = command.Split(CommandConstant.COMMAND_DELIMITER);
+            if (vals == null || vals.Length < 2)
+                return false;
+
+            clientCommand = vals[0].Trim();
+            value = vals[1].Trim();
+            return true;
+        }
+
+        private void OnFormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (connectToServerCheckBox.Checked)
+            {
+                ClientManager.Instance.Disconnect();
             }
         }
     }

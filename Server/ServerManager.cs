@@ -24,12 +24,12 @@ namespace Server
         private Socket serverSocket;
         private IPEndPoint ipEndPoint;
         private List<Socket> connectedClients;
+        private IntPtr targetClientHandle = IntPtr.Zero;
         private bool runAcceptThread;
         private bool isSend;
         private string sendToClientMessage;
 
         private static object guard = new object();
-        private static object recvGuard = new object();
         private static ServerManager instance;
         public static ServerManager Instance
         {
@@ -77,7 +77,7 @@ namespace Server
             }
             catch (Exception ex)
             {
-                return false;
+                throw ex;
             }
 
             LuanchAcceptThread();
@@ -139,26 +139,45 @@ namespace Server
             {
                 if (isSend)
                 {
-                    SendToClients();
-                    isSend = false;
+                    SendMessage();
                 }
             }
         }
 
-        private void SendToClients()
+        private void SendMessage()
         {
             EndPoint remotePoint = ipEndPoint as EndPoint;
             int numClients = connectedClients.Count;
+            bool sendToTargetClient = targetClientHandle != IntPtr.Zero;
             for (int i = 0; i < numClients; ++i)
             {
                 try
                 {
-                    connectedClients[i].SendTo(Encoding.ASCII.GetBytes(sendToClientMessage), remotePoint);
+                    if (sendToTargetClient)
+                    {
+                        if (IsTargetClientHandle(connectedClients[i].Handle))
+                        {
+                            connectedClients[i].SendTo(Encoding.ASCII.GetBytes(sendToClientMessage), remotePoint);
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        connectedClients[i].SendTo(Encoding.ASCII.GetBytes(sendToClientMessage), remotePoint);
+                    }
                 }
                 catch (Exception ex)
                 {
                 }
             }
+
+            isSend = false;
+            targetClientHandle = IntPtr.Zero;
+        }
+
+        private bool IsTargetClientHandle(IntPtr handle)
+        {
+            return handle == targetClientHandle;
         }
 
         private void ClientJoined(Socket clientSocket)
@@ -185,20 +204,7 @@ namespace Server
             byte[] recvBuffer = new byte[MAX_BUF_SIZE];
             while (true)
             {
-                try
-                {
-                    ClearBuffer(recvBuffer);
-                    lock (recvGuard)
-                    {
-                        int recvLength = clientSocket.ReceiveFrom(recvBuffer, ref remotePoint);
-                        string recvData = Encoding.Default.GetString(recvBuffer, 0, recvLength);
-                        if (serverListener != null)
-                            serverListener.OnReceiveClientMessage(clientSocket.Handle, recvData);
-                    }
-                }
-                catch (Exception ex)
-                {
-                }
+                ReceiveClientData(clientSocket, remotePoint, recvBuffer);
                 if (ClientIsNotAlive(clientSocket))
                 {
                     lock(guard)
@@ -207,6 +213,21 @@ namespace Server
                     }
                     break;
                 }
+            }
+        }
+
+        private void ReceiveClientData(Socket clientSocket, EndPoint remotePoint, byte[] recvBuffer)
+        {
+            try
+            {
+                ClearBuffer(recvBuffer);
+                int recvLength = clientSocket.ReceiveFrom(recvBuffer, ref remotePoint);
+                string recvData = Encoding.Default.GetString(recvBuffer, 0, recvLength);
+                if (serverListener != null)
+                    serverListener.OnReceiveClientMessage(clientSocket.Handle, recvData);
+            }
+            catch (Exception ex)
+            {
             }
         }
 
@@ -226,7 +247,6 @@ namespace Server
 
         private int FindClientIndex(IntPtr handle)
         {
-
             int numClients = connectedClients.Count;
             for (int i = 0; i < numClients; ++i)
             {
@@ -279,12 +299,13 @@ namespace Server
             connectedClients.Clear();
         }
 
-        public void SendToClient(string message)
+        public void SendToClient(IntPtr clientHandle, string message)
         {
             if (message.Length > 0)
             {
                 isSend = true;
                 sendToClientMessage = message;
+                targetClientHandle = clientHandle;
             }
         }
     }
