@@ -36,6 +36,10 @@
             this.humidityTextBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.humidityTextBox2 = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.temperatureTextBox2 = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.lightBulbPictureBox)).BeginInit();
             this.SuspendLayout();
             // 
@@ -89,7 +93,7 @@
             // 
             // humidityTextBox
             // 
-            this.humidityTextBox.Location = new System.Drawing.Point(102, 225);
+            this.humidityTextBox.Location = new System.Drawing.Point(102, 264);
             this.humidityTextBox.MaxLength = 5;
             this.humidityTextBox.Name = "humidityTextBox";
             this.humidityTextBox.Size = new System.Drawing.Size(116, 23);
@@ -102,27 +106,69 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(45, 186);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(42, 14);
+            this.label1.Size = new System.Drawing.Size(49, 14);
             this.label1.TabIndex = 5;
-            this.label1.Text = "温度:";
+            this.label1.Text = "温度1:";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(45, 228);
+            this.label2.Location = new System.Drawing.Point(45, 267);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(42, 14);
+            this.label2.Size = new System.Drawing.Size(49, 14);
             this.label2.TabIndex = 5;
-            this.label2.Text = "湿度:";
+            this.label2.Text = "湿度1:";
+            // 
+            // humidityTextBox2
+            // 
+            this.humidityTextBox2.Location = new System.Drawing.Point(102, 309);
+            this.humidityTextBox2.MaxLength = 5;
+            this.humidityTextBox2.Name = "humidityTextBox2";
+            this.humidityTextBox2.Size = new System.Drawing.Size(116, 23);
+            this.humidityTextBox2.TabIndex = 4;
+            this.humidityTextBox2.Text = "30";
+            this.humidityTextBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(45, 312);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(49, 14);
+            this.label3.TabIndex = 5;
+            this.label3.Text = "湿度2:";
+            // 
+            // temperatureTextBox2
+            // 
+            this.temperatureTextBox2.Location = new System.Drawing.Point(102, 223);
+            this.temperatureTextBox2.MaxLength = 5;
+            this.temperatureTextBox2.Name = "temperatureTextBox2";
+            this.temperatureTextBox2.Size = new System.Drawing.Size(116, 23);
+            this.temperatureTextBox2.TabIndex = 4;
+            this.temperatureTextBox2.Text = "20";
+            this.temperatureTextBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(45, 226);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(49, 14);
+            this.label4.TabIndex = 5;
+            this.label4.Text = "温度2:";
             // 
             // ClientForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(269, 374);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.label1);
+            this.Controls.Add(this.humidityTextBox2);
             this.Controls.Add(this.humidityTextBox);
+            this.Controls.Add(this.temperatureTextBox2);
             this.Controls.Add(this.temperatureTextBox);
             this.Controls.Add(this.lightBulbPictureBox);
             this.Controls.Add(this.btnBulbStateSwitch);
@@ -150,6 +196,10 @@
         private System.Windows.Forms.TextBox humidityTextBox;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox humidityTextBox2;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox temperatureTextBox2;
+        private System.Windows.Forms.Label label4;
     }
 }
 

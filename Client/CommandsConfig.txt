@@ -1,9 +1,0 @@
-ServerPort: 	8008  # ·şÎñÆ÷¶Ë¿ÚºÅ
-
-############## Commands ##############
-# status	   	type
-LightState:		bool
-Temperature1:	float
-Temperature2:	float
-Humidity1:		float
-Humidity2:		float

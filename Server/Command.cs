@@ -8,6 +8,8 @@
         public static readonly string COMMAND_LIGHT_STATE = "LightState";
         public static readonly string COMMAND_TEMPERATURE = "Temperature";
         public static readonly string COMMAND_HUMIDITY = "Humidity";
+        public static readonly string COMMAND_TEMPERATURE2 = "Temperature2";
+        public static readonly string COMMAND_HUMIDITY2 = "Humidity2";
     }
 
     public abstract class CommandBase
@@ -49,6 +51,22 @@
     public class HumidityCommand : CommandBase
     {
         public HumidityCommand(string commandName, CommandHandler commandHander)
+            : base(commandName, commandHander)
+        {
+        }
+    }
+
+    public class TemperatureCommand2 : CommandBase
+    {
+        public TemperatureCommand2(string commandName, CommandHandler commandHander)
+            : base(commandName, commandHander)
+        {
+        }
+    }
+
+    public class HumidityCommand2 : CommandBase
+    {
+        public HumidityCommand2(string commandName, CommandHandler commandHander)
             : base(commandName, commandHander)
         {
         }

@@ -13,6 +13,8 @@ namespace Client
         private const bool DEFAULT_LIGHT_IS_ON = true;
         private const float DEFAULT_TEMPERATURE = 20;
         private const float DEFAULT_HUMIDITY = 30;
+        private const float DEFAULT_TEMPERATURE2 = 15;
+        private const float DEFAULT_HUMIDITY2 = 25;
 
         private const string LIGHT_ON_IMAGE_NAME = "LightBright.bmp";
         private const string LIGHT_OFF_IMAGE_NAME = "LightDark.bmp";
@@ -72,6 +74,8 @@ namespace Client
             clientStatus.LightIsOn = DEFAULT_LIGHT_IS_ON;
             clientStatus.Temperature = DEFAULT_TEMPERATURE;
             clientStatus.Humidity = DEFAULT_HUMIDITY;
+            clientStatus.Temperature2 = DEFAULT_TEMPERATURE2;
+            clientStatus.Humidity2 = DEFAULT_HUMIDITY2;
         }
 
         private void SetUIValues()
@@ -86,6 +90,8 @@ namespace Client
             serverCommands.Add(CommandConstant.COMMAND_LIGHT_STATE, new LightStateCommand("LightState", OnLightStateCommandHandler));
             serverCommands.Add(CommandConstant.COMMAND_TEMPERATURE, new TemperatureCommand("Temerature", OnTemperatureCommandHandler));
             serverCommands.Add(CommandConstant.COMMAND_HUMIDITY, new HumidityCommand("Humidity", OnHumidityCommandHandler));
+            serverCommands.Add(CommandConstant.COMMAND_TEMPERATURE2, new TemperatureCommand("Temerature2", OnTemperatureCommandHandler2));
+            serverCommands.Add(CommandConstant.COMMAND_HUMIDITY2, new HumidityCommand("Humidity2", OnHumidityCommandHandler2));
         }
 
         private void OnLightStateCommandHandler(object[] args)
@@ -115,6 +121,24 @@ namespace Client
             clientStatus.Humidity = ParseStringToFloatValue(value);
         }
 
+        private void OnTemperatureCommandHandler2(object[] args)
+        {
+            if (args == null || args.Length < 1)
+                return;
+
+            string value = (string)args[0];
+            clientStatus.Temperature2 = ParseStringToFloatValue(value);
+        }
+
+        private void OnHumidityCommandHandler2(object[] args)
+        {
+            if (args == null || args.Length < 1)
+                return;
+
+            string value = (string)args[0];
+            clientStatus.Humidity2 = ParseStringToFloatValue(value);
+        }
+
         private float ParseStringToFloatValue(string value)
         {
             float result = 0;
@@ -139,6 +163,8 @@ namespace Client
         {
             temperatureTextBox.Text = clientStatus.Temperature.ToString();
             humidityTextBox.Text = clientStatus.Humidity.ToString();
+            temperatureTextBox2.Text = clientStatus.Temperature2.ToString();
+            humidityTextBox2.Text = clientStatus.Humidity2.ToString();
         }
 
         private void RegistClientListener()
@@ -204,12 +230,16 @@ namespace Client
             string clientLightState = clientStatus.LightIsOn ? "on" : "off";
             string clientTemperature = clientStatus.Temperature.ToString();
             string clientHumidity = clientStatus.Humidity.ToString();
+            string clientTemperature2 = clientStatus.Temperature2.ToString();
+            string clientHumidity2 = clientStatus.Humidity2.ToString();
 
             StringBuilder sb = new StringBuilder();
             sb.Append(CommandConstant.COMMAND_CLIENT_COMMAND_PREFIX);
             AppendCommandToStringBuilder(ref sb, CommandConstant.COMMAND_LIGHT_STATE + CommandConstant.COMMAND_DELIMITER, clientLightState);
             AppendCommandToStringBuilder(ref sb, CommandConstant.COMMAND_TEMPERATURE + CommandConstant.COMMAND_DELIMITER, clientTemperature);
             AppendCommandToStringBuilder(ref sb, CommandConstant.COMMAND_HUMIDITY + CommandConstant.COMMAND_DELIMITER, clientHumidity);
+            AppendCommandToStringBuilder(ref sb, CommandConstant.COMMAND_TEMPERATURE2 + CommandConstant.COMMAND_DELIMITER, clientTemperature2);
+            AppendCommandToStringBuilder(ref sb, CommandConstant.COMMAND_HUMIDITY2 + CommandConstant.COMMAND_DELIMITER, clientHumidity2);
 
             return sb.ToString();
         }

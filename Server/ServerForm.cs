@@ -42,6 +42,8 @@ namespace Server
             clientCommands.Add(CommandConstant.COMMAND_LIGHT_STATE, new LightStateCommand("LightState", OnLightStateCommandHandler));
             clientCommands.Add(CommandConstant.COMMAND_TEMPERATURE, new TemperatureCommand("Temerature", OnTemperatureCommandHandler));
             clientCommands.Add(CommandConstant.COMMAND_HUMIDITY, new HumidityCommand("Humidity", OnHumidityCommandHandler));
+            clientCommands.Add(CommandConstant.COMMAND_TEMPERATURE2, new TemperatureCommand("Temerature2", OnTemperatureCommandHandler2));
+            clientCommands.Add(CommandConstant.COMMAND_HUMIDITY2, new HumidityCommand("Humidity2", OnHumidityCommandHandler2));
         }
 
         private void OnStartServerCheckedChanged(object sender, EventArgs e)
@@ -116,7 +118,7 @@ namespace Server
             ClientStatus clientStatus = GetSelectedClientStatus();
             if (clientStatus != null)
             {
-                string lightIsOn = clientStatus.LightBulbIsOn ? "off" : "on";
+                string lightIsOn = clientStatus.LightIsOn ? "off" : "on";
                 string message = CommandConstant.COMMAND_SERVER_COMMAND_PREFIX + 
                                 CommandConstant.COMMAND_LIGHT_STATE + CommandConstant.COMMAND_DELIMITER +
                                 lightIsOn;
@@ -242,10 +244,12 @@ namespace Server
 
         private void SetUITexts(ClientStatus clentStatus)
         {
-            bulbStateText.Text = clentStatus.LightBulbIsOn ? "亮" : "暗";
+            bulbStateText.Text = clentStatus.LightIsOn ? "亮" : "暗";
+            btnClientLightSwitch.Text = clentStatus.LightIsOn ? "关灯" : "开灯";
             temperatureStateText.Text = clentStatus.Temperature.ToString();
             humidityStateText.Text = clentStatus.Humidity.ToString();
-            btnClientLightSwitch.Text = clentStatus.LightBulbIsOn ? "关灯" : "开灯";
+            temperatureStateText2.Text = clentStatus.Temperature2.ToString();
+            humidityStateText2.Text = clentStatus.Humidity2.ToString();
         }
 
         private void SetButtonsEnabled(bool enabled)
@@ -253,6 +257,8 @@ namespace Server
             btnClientLightSwitch.Enabled = enabled;
             btnClientTemperatureSetting.Enabled = enabled;
             btnClientHumiditySetting.Enabled = enabled;
+            btnClientTemperatureSetting2.Enabled = enabled;
+            btnClientHumiditySetting2.Enabled = enabled;
         }
 
         private void OnBtnClientTemperatureSettingClicked(object sender, EventArgs e)
@@ -279,15 +285,39 @@ namespace Server
                 SendToSelectedClient(CommandConstant.COMMAND_HUMIDITY, humidityValueText.Text);
         }
 
+        private void OnBtnClientTemperatureSettingClicked2(object sender, EventArgs e)
+        {
+            if (clientList.SelectedIndex < 0)
+            {
+                MessageBox.Show("未选中客户端");
+                return;
+            }
+
+            if (ValidText(temperatureValueText2.Text))
+                SendToSelectedClient(CommandConstant.COMMAND_TEMPERATURE2, temperatureValueText2.Text);
+        }
+
+        private void OnBtnClientHumiditySettingClicked2(object sender, EventArgs e)
+        {
+            if (clientList.SelectedIndex < 0)
+            {
+                MessageBox.Show("未选中客户端");
+                return;
+            }
+
+            if (ValidText(humidityValueText2.Text))
+                SendToSelectedClient(CommandConstant.COMMAND_HUMIDITY2, humidityValueText2.Text);
+        }
+
         private bool ValidText(string text)
         {
-            if (temperatureValueText.Text == "")
+            if (string.IsNullOrEmpty(text))
             {
                 MessageBox.Show("值不能为空");
                 return false;
             }
 
-            bool isNumber = Util.IsNumber(temperatureValueText.Text);
+            bool isNumber = Util.IsNumber(text);
             if (!isNumber)
             {
                 MessageBox.Show("输入数字不合法");
@@ -335,6 +365,28 @@ namespace Server
             SetClientHumidity(handle, humidity);
         }
 
+
+        private void OnTemperatureCommandHandler2(object[] args)
+        {
+            if (args == null || args.Length < 2)
+                return;
+
+            IntPtr handle = (IntPtr)args[0];
+            string value = (string)args[1];
+            float temperature = ParseStringToFloatValue(value);
+            SetClientTemperature2(handle, temperature);
+        }
+
+        private void OnHumidityCommandHandler2(object[] args)
+        {
+            if (args == null || args.Length < 2)
+                return;
+            IntPtr handle = (IntPtr)args[0];
+            string value = (string)args[1];
+            float humidity = ParseStringToFloatValue(value);
+            SetClientHumidity2(handle, humidity);
+        }
+
         private float ParseStringToFloatValue(string value)
         {
             float result = 0;
@@ -354,7 +406,7 @@ namespace Server
             ClientStatus clientStatus;
             if (clientStatusTable.TryGetValue(handle, out clientStatus))
             {
-                clientStatus.LightBulbIsOn = lightIsOn;
+                clientStatus.LightIsOn = lightIsOn;
             }
         }
 
@@ -373,6 +425,24 @@ namespace Server
             if (clientStatusTable.TryGetValue(handle, out clientStatus))
             {
                 clientStatus.Humidity = humidity;
+            }
+        }
+
+        private void SetClientTemperature2(IntPtr handle, float temperature)
+        {
+            ClientStatus clientStatus;
+            if (clientStatusTable.TryGetValue(handle, out clientStatus))
+            {
+                clientStatus.Temperature2 = temperature;
+            }
+        }
+
+        private void SetClientHumidity2(IntPtr handle, float humidity)
+        {
+            ClientStatus clientStatus;
+            if (clientStatusTable.TryGetValue(handle, out clientStatus))
+            {
+                clientStatus.Humidity2 = humidity;
             }
         }
     }
